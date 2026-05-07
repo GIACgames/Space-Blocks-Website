@@ -62,7 +62,10 @@ export default {
     onPointerCancel(e)
     {
 		canvasBox.releasePointerCapture(e.pointerId);
-    },getHotbarHTML()
+    },
+	onKeyDown(e) {},
+    onKeyUp(e) {},
+	getHotbarHTML()
     {
         return "<select id='select-face' onchange='hotbarButtonPress(this)'><option>top</option><option>left</option><option>right</option><option>back</option><option>front</option><option>bottom</option></select>&nbsp; <input type='button' onclick='hotbarButtonPress(this)' value='reset'><select onchange='setPreviewFilter(this)'><option>color</option><option>height-map</option></select>&nbsp;  <span class='preview-height-slider'><input type='range' oninput='onChangeHeightSlider(this)'><span>0</span><span>top</span><span>curVal</span><span>radius</span></span>";
     },postSetHotbar()

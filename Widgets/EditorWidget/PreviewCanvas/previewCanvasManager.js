@@ -123,6 +123,13 @@ function setUpPreviewEvents()
         if (currentView){currentView.onPointerCancel(e);};
         // document.exitPointerLock();
     });
+
+    window.addEventListener("keydown", (e) => {
+        if (currentView){currentView.onKeyDown(e);};
+    });
+    window.addEventListener("keyup", (e) => {
+        if (currentView){currentView.onKeyUp(e);};
+    });
 }
 function resetInputFrame()
 {

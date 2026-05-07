@@ -10,6 +10,9 @@ let focusedPoint = null;
 
 let simScale=10;
 let starPointScale=0.008;
+let cosmicPos = null;
+let coordinateText = null;
+let shiftKeyDown=false;
 
 export default {
     handleInput(pointerX, pointerY, scrollDelta, isDraggingPreview, dragXDelta, dragYDelta, scndaryDragXDelta, scndaryDragYDelta)
@@ -90,10 +93,14 @@ export default {
     {
        document.exitPointerLock();
     },
+    onKeyDown(e) { if (e.key=="Shift"){shiftKeyDown=true;}},
+    onKeyUp(e) {if (e.key=="Shift"){shiftKeyDown=false;}},
     getHotbarHTML(){
-      return "";
+      return "<span id='coordinate-text'>123123</span>";
     },
-    postSetHotbar() {},
+    postSetHotbar() {
+      coordinateText = hotbar.querySelector("#coordinate-text");
+    },
     hotbarButtonPress(btn)
     {}
 }
@@ -114,6 +121,7 @@ const targQuat= new THREE.Quaternion();
 let lerpSpeedMultiplier = 0.1;
 function cameraViewControls(pointerX, pointerY, scrollDelta, isDraggingPreview, dragXDelta, dragYDelta, scndaryDragXDelta, scndaryDragYDelta)
 { 
+  let shiftSpeedMulti = shiftKeyDown ? 3 : 1;
   let pos = new THREE.Vector3().copy(camera.position);
   let rot = new THREE.Quaternion().copy(camera.quaternion);
 
@@ -135,11 +143,11 @@ function cameraViewControls(pointerX, pointerY, scrollDelta, isDraggingPreview, 
   {
 
      // move right/left
-    camera.position.addScaledVector(right, -dragXDelta * 0.2 * simScale);
+    camera.position.addScaledVector(right, -dragXDelta * 0.2 * simScale*shiftSpeedMulti);
     // move up/down
-    camera.position.addScaledVector(up, dragYDelta * 0.2 * simScale);
+    camera.position.addScaledVector(up, dragYDelta * 0.2 * simScale* shiftSpeedMulti);
     // move forward/backward
-    camera.position.addScaledVector(forward, -scrollDelta * 0.2 * simScale);
+    camera.position.addScaledVector(forward, -scrollDelta * 0.2 * simScale * shiftSpeedMulti*shiftSpeedMulti);
     
     
     camYaw += -scndaryDragXDelta * 0.02; 
@@ -219,7 +227,7 @@ function cameraViewControls(pointerX, pointerY, scrollDelta, isDraggingPreview, 
       {
         // camera.position.lerp(focusedPoint.position, -0.2*lerpSpeedMultiplier);
         // camera.position.addScaledVector(forward, -1 * 0.1 * focusedPoint.orbitRadius *0.06 *simScale);
-        camera.position.addScaledVector(forward, -Math.min(focusedPoint.orbitRadius-distance, 0.3 * focusedPoint.orbitRadius *0.06 *simScale));
+        camera.position.addScaledVector(forward, -Math.min(focusedPoint.orbitRadius-distance, 0.3 * focusedPoint.orbitRadius *0.06 *simScale)*shiftSpeedMulti);
       }
       else if (distance > focusedPoint.orbitRadius+0.5)
       {
@@ -249,7 +257,9 @@ function cameraViewControls(pointerX, pointerY, scrollDelta, isDraggingPreview, 
   }
   if (pos.x!==camera.position.x || pos.y!==camera.position.y || pos.z!==camera.position.z
     || rot.x!==camera.quaternion.x || rot.y!==camera.quaternion.y || rot.z!==camera.quaternion.z || rot.w!==camera.quaternion.w
-  ) {pendingRerender=true;}
+  ) {
+    UpdateCosmicPos();
+    pendingRerender=true;}
 }
 const m = new THREE.Matrix4();
 // const up = new THREE.Vector3(0, 1, 0);
@@ -682,4 +692,11 @@ function createFaceTexture(text, upDir, bgColor, bodyGenData) {
 
     const texture = new THREE.CanvasTexture(canvas);
     return texture;
+}
+
+function UpdateCosmicPos()
+{
+  cosmicPos = camera.position;
+  cosmicPos = refs.customMaths.vecFloorDiv(cosmicPos,10);
+  coordinateText.textContent = `x:${cosmicPos.x}, y:${cosmicPos.y}, z:${cosmicPos.z}`;
 }
